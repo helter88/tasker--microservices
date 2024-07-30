@@ -1,0 +1,13 @@
+spring:
+  application:
+    name=project-manager
+
+  datasource:
+    url: jdbc:mysql://${DATABASE_URL:localhost}:${DATABASE_PORT:3306}/${DATABASE_NAME:tasker_db}?useSSL=false&serverTimezone=UTC
+    username: ${DATABASE_USERNAME:user}
+    password: ${DATABASE_PASSWORD:admin}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+server:
+  port: 8081
