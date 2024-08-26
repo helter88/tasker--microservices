@@ -19,31 +19,27 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.UUID;
 
+//TODO: remove issues
 @RestController
-@RequestMapping("/api")
 @RequiredArgsConstructor
-public class IssueController {
-
+public class IssueController implements IssueControllerApi { //TODO: interface with REST-related annotations (being consistent with API-first approach?)
     private final IssueService issueService;
 
-    @GetMapping
     public List<IssueDto> getIssues() {
         return issueService.getIssues();
     }
 
-    @GetMapping("/data")
     public ResponseEntity<String> getData() {
         return ResponseEntity.ok("Data from Issue");
     }
 
-    @PostMapping
-    public void addIssue(@RequestBody IssueDto issueDto) {
+    public void addIssue(IssueDto issueDto) {
         issueService.addIssue(issueDto);
     }
 
-    @PutMapping("/{id}")
-    public void updateIssue(@RequestBody IssueDto issueDto, @PathVariable UUID id)  {
-        issueService.updateIssue(issueDto, id);
+    @PutMapping
+    public void updateIssue(@RequestBody IssueDto issueDto) {
+        issueService.updateIssue(issueDto); //TODO: change releted to uuid, get the ID from dto
     }
 
     @DeleteMapping("/{id}")

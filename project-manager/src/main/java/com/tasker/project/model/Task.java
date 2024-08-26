@@ -13,6 +13,6 @@ import java.util.UUID;
 @Setter
 public class Task {
     @Id
-    public UUID uuid;
+    public UUID uuid = UUID.randomUUID();
     public String description;
 }

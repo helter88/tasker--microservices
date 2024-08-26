@@ -11,7 +11,6 @@ import java.util.UUID;
 @Getter
 @Setter
 public class Issue {
-
     @Id
     public UUID uuid = UUID.randomUUID();
     public String name;
