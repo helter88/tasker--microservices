@@ -1,4 +1,4 @@
-name: Build
+name: Build all microservices
 
 on:
   push:
@@ -17,5 +17,17 @@ jobs:
         java-version: '21'
         distribution: 'adopt'
         
-    - name: Build with Maven
-      run: mvn clean install
+    - name: Build issue manager
+      run: |
+        cd issue-manager
+        mvn clean install
+        
+    - name: Build project manager
+      run: |
+        cd project-manager
+        mvn clean install
+
+    - name: Build queue manager
+      run: |
+        cd queue-manager
+        mvn clean install
