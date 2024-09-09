@@ -1,9 +1,11 @@
 package com.example.queue_manager.model;
 
+import com.example.queue_manager.service.utile.Status;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,17 +21,21 @@ import java.util.UUID;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Queue {
-    //    TODO dlaczego uuid musi być public?
     @Id
     UUID uuid = UUID.randomUUID();
 
-    String status;
+    @Enumerated(EnumType.STRING)
+    Status status;
 
     Instant executionDate;
 
     Duration executionTime;
 
-    public Queue(String status) {
+    Integer numberOfTries = 0;
+
+    String messageLog;
+
+    public Queue(Status status) {
         this.status = status;
     }
 }

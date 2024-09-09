@@ -12,3 +12,7 @@ spring:
       ddl-auto: create
 server:
   port: 8080
+
+queue:
+  max-retries: 3
+  repetition-time: 10000

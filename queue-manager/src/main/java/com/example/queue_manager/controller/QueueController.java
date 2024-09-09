@@ -1,9 +1,11 @@
 package com.example.queue_manager.controller;
 
+import com.example.queue_manager.exception.TimerAnnotation;
 import com.example.queue_manager.model.Queue;
 import com.example.queue_manager.repository.QueueRepository;
+import com.example.queue_manager.service.utile.Status;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,10 +16,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class QueueController {
 
     private final QueueRepository repository;
+
     @PostMapping("/tasks")
-    public void addNewTask() {
+    @TimerAnnotation
+    public ResponseEntity<String> addNewTask() {
         System.out.println("Controller runs");
-        repository.save(new Queue("TODO"));
+        repository.save(new Queue(Status.TODO));
+        return ResponseEntity.ok("xD");
     }
 
 }

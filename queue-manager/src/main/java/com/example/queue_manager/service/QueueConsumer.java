@@ -1,19 +1,21 @@
 package com.example.queue_manager.service;
 
 import com.example.queue_manager.client.QueueClient;
+import com.example.queue_manager.exception.InvalidJobException;
 import com.example.queue_manager.model.Queue;
 import com.example.queue_manager.repository.PlayerRepository;
 import com.example.queue_manager.repository.QueueRepository;
 import com.example.queue_manager.service.dto.PlayerDto;
 import com.example.queue_manager.service.mapper.PlayerMapper;
+import com.example.queue_manager.service.utile.Status;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -22,16 +24,16 @@ public class QueueConsumer {
     private final PlayerRepository playerRepository;
     private final QueueRepository queueRepository;
     private final PlayerMapper mapper;
+    @Value("${queue.max-retries}")
+    private int maxRetries;
 
-    private static final int MAX_RETRIES = 3;
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(fixedDelayString = "${queue.repetition-time}")
     public void runJobs() {
 //         get all entries from queue with status TODO
         List<Queue> commands = getExecutionCommands();
 //         run BusinessLogicService for each entries
         commands.forEach(queue -> updateExecutionCommand(executeJobLogicForCommands(queue)));
-        System.out.println(":)");
     }
 
     public void userRequest() {
@@ -39,52 +41,45 @@ public class QueueConsumer {
     }
 
     private void runJob() {
-        List<PlayerDto> response = client.getQueueData();
+        List<PlayerDto> response = client.processDataForJob();
         response.forEach(playerDto -> playerRepository.save(mapper.toEntity(playerDto)));
     }
 
-//     update entry with proper status after job execution
     private void updateExecutionCommand(Queue queue) {
         queueRepository.save(queue);
     }
-
     private List<Queue> getExecutionCommands() {
-        return queueRepository.findAll().stream()
-                .filter(queue -> queue.getStatus().equals("TODO"))
-                .toList();
+        return queueRepository.findByStatusOrFailedWithRetriesLeft(Status.TODO, maxRetries);
     }
 
     private Queue executeJobLogicForCommands(Queue queue) {
-        int retries = 0;
-        boolean success = false;
 
-        while (retries < MAX_RETRIES && !success) {
-            try {
-                Instant jobStart = Instant.now();
-                runJob();
-                Instant jobEnd = Instant.now();
-                success = true;
-                queue.setStatus("DONE");
-                queue.setExecutionTime(Duration.between(jobStart, jobEnd));
-                queue.setExecutionDate(jobEnd);
-            } catch (Exception exception) {
-                retries++;
-                if (retries == MAX_RETRIES) {
-                    queue.setStatus("FAILED");
-                    queue.setExecutionDate(Instant.now());
-                } else {
-                    try {
-                        long delayInMinutes = (retries == 1) ? 2 : 15;
-                        TimeUnit.MINUTES.sleep(delayInMinutes);
-                    } catch (InterruptedException ie) {
-                        Thread.currentThread().interrupt();
-                    }
-                }
-            }
+        try {
+            Instant jobStart = Instant.now();
+            queue.setStatus(Status.INPROGRESS);
+            queueRepository.save(queue);
+            runJob();
+            Instant jobEnd = Instant.now();
+            queue.setStatus(Status.DONE);
+            queue.setExecutionTime(Duration.between(jobStart, jobEnd));
+            queue.setExecutionDate(jobEnd);
+        } catch (Exception exception) {
+            //TODO write Exception Handler
+            queue.setStatus(Status.FAILED);
+            queue.setExecutionDate(Instant.now());
+            queue.setNumberOfTries(queue.getNumberOfTries() + 1);
+            var messageException = "Can't run Job";
+            queue.setMessageLog(messageException);
+            queueRepository.save(queue);
+            throw new InvalidJobException(messageException);
         }
         return queue;
     }
 }
+
+// TODO 30.08.2024 CI/CD z Github axtions etap budowania projektu
+//TODO 06.09 zapytaj Kubę co w sytuacji gdy baza danych jest PostgreSQL i używa sekwencji w kontekście id encji
+//TODO 06.09 zapytaj Kubę różnica między NamedQuery a Query do zapytań ?
 
 // retry (max 3 razy) gdy failed
 // data-czas wykonania w queue
