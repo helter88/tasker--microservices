@@ -25,13 +25,13 @@ jobs:
         mvn clean verify org.jacoco:jacoco-maven-plugin:report org.apache.maven.plugins:maven-site-plugin:site -DgenerateReports=false
         mvn com.github.spotbugs:spotbugs-maven-plugin:check
         
-    - name: Build project manager
+    - name: Build and analyze manager
       run: |
         cd project-manager
         mvn clean verify org.jacoco:jacoco-maven-plugin:report org.apache.maven.plugins:maven-site-plugin:site -DgenerateReports=false
         mvn com.github.spotbugs:spotbugs-maven-plugin:check
 
-    - name: Build queue manager
+    - name: Build and analyze queue manager
       run: |
         cd queue-manager
         mvn clean verify org.jacoco:jacoco-maven-plugin:report org.apache.maven.plugins:maven-site-plugin:site -DgenerateReports=false
