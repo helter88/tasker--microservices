@@ -1,7 +1,9 @@
-name: Build all microservices
+name: Build and analyze all microservices with SpotBugs
 
 on:
   push:
+    branches: [ "main" ]
+  pull_request:
     branches: [ "main" ]
     
 jobs:
@@ -17,17 +19,20 @@ jobs:
         java-version: '21'
         distribution: 'adopt'
         
-    - name: Build issue manager
+    - name: Build and analyze issue manager
       run: |
         cd issue-manager
-        mvn clean install
+        mvn clean verify org.jacoco:jacoco-maven-plugin:report org.apache.maven.plugins:maven-site-plugin:site -DgenerateReports=false
+        mvn com.github.spotbugs:spotbugs-maven-plugin:check
         
     - name: Build project manager
       run: |
         cd project-manager
-        mvn clean install
+        mvn clean verify org.jacoco:jacoco-maven-plugin:report org.apache.maven.plugins:maven-site-plugin:site -DgenerateReports=false
+        mvn com.github.spotbugs:spotbugs-maven-plugin:check
 
     - name: Build queue manager
       run: |
         cd queue-manager
-        mvn clean install
+        mvn clean verify org.jacoco:jacoco-maven-plugin:report org.apache.maven.plugins:maven-site-plugin:site -DgenerateReports=false
+        mvn com.github.spotbugs:spotbugs-maven-plugin:check
