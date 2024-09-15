@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: calendar-manager
+google:
+  credentials:
+    path: /credentials.json
+server:
+  port: 50083
