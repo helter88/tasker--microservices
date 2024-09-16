@@ -36,7 +36,7 @@ public class GoogleCalendarConfig {
                 .setDataStoreFactory(new FileDataStoreFactory(new java.io.File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build();
-        LocalServerReceiver receiver = new LocalServerReceiver.Builder().setPort(50083).build();
+        LocalServerReceiver receiver = new LocalServerReceiver.Builder().build();
         Credential credential = new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
 
         return new Calendar.Builder(HTTP_TRANSPORT, JacksonFactory.getDefaultInstance(), credential)
