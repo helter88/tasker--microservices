@@ -4,5 +4,5 @@ spring:
 google:
   credentials:
     path: /credentials.json
-#server:
-#  port: 50083
+server:
+  port: 8081
