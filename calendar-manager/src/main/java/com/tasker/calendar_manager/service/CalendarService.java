@@ -1,5 +1,6 @@
 package com.tasker.calendar_manager.service;
 
+import com.tasker.calendar_manager.exception.CreationEventFailed;
 import com.tasker.calendar_manager.service.dto.EventDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,9 @@ import java.security.GeneralSecurityException;
 public class CalendarService {
     private final GoogleCalendarService googleCalendarService;
     public void saveEvent(EventDto eventDto) throws IOException, GeneralSecurityException {
-        googleCalendarService.createEvent(eventDto.task(), eventDto.date());
+        var event = googleCalendarService.createEvent(eventDto.task(), eventDto.date());
+        if(event.getId().isBlank()){
+            throw new CreationEventFailed("Couldn't create event in Google Calendar");
+        }
     }
 }

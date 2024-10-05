@@ -11,8 +11,12 @@ spring:
     hibernate:
       ddl-auto: create
 server:
-  port: 8080
+  port: 8083
 
 queue:
   max-retries: 3
   repetition-time: 10000
+
+auth:
+  jwt:
+    secret: Moj secret

@@ -25,7 +25,7 @@ import java.time.temporal.ChronoUnit;
 public class GoogleCalendarService {
     private final GoogleCredentialService calendarService;
 
-    public String createEvent(String title, Instant startTime) throws IOException, GeneralSecurityException {
+    public Event createEvent(String title, Instant startTime) throws IOException, GeneralSecurityException {
         Event event = new Event()
                 .setSummary(title);
 
@@ -45,6 +45,6 @@ public class GoogleCalendarService {
 //                "primary" to specjalny identyfikator, który zawsze odnosi się do głównego kalendarza użytkownika
         String calendarId = "primary";
         event = calendarService.setupCredential().events().insert(calendarId, event).execute();
-        return event.getHtmlLink();
+        return event;
     }
 }

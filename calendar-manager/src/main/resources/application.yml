@@ -6,3 +6,6 @@ google:
     path: /credentials.json
 server:
   port: 8081
+auth:
+  jwt:
+    secret: Moj secret
