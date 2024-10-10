@@ -1,4 +1,4 @@
-package com.tasker.calendar_manager.service.dto;
+package com.tasker.project.service.dto;
 
 import java.time.Instant;
 

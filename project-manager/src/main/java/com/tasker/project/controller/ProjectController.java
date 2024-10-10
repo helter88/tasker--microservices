@@ -1,8 +1,8 @@
 package com.tasker.project.controller;
 
-import com.tasker.project.controller.dto.ResponseDto;
 import com.tasker.project.service.ProjectService;
 import com.tasker.project.service.dto.ProjectDto;
+import com.tasker.project.service.dto.ProjectEventDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +47,14 @@ public class ProjectController {
         projectService.deleteProject(uuid);
         return ResponseEntity
                 .ok("deleted");
+    }
+
+    @PostMapping("/event")
+    public ResponseEntity<?> addProjectAndEvent(@RequestBody ProjectEventDto projectEventDto){
+        projectService.createProjectAndEvent(projectEventDto);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .build();
     }
 
 }

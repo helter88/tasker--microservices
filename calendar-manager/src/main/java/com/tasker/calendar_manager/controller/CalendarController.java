@@ -1,5 +1,7 @@
 package com.tasker.calendar_manager.controller;
 
+import com.google.api.client.util.DateTime;
+import com.google.api.services.calendar.model.Event;
 import com.tasker.calendar_manager.service.CalendarService;
 import com.tasker.calendar_manager.service.GoogleCredentialService;
 import com.tasker.calendar_manager.service.dto.EventDto;
@@ -14,24 +16,23 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/v1/calendar")
 @RequiredArgsConstructor
 public class CalendarController {
 
     private final CalendarService calendarService;
 
-    @PostMapping
-    public ResponseEntity<String> saveEvent(@RequestBody EventDto eventDto) {
-        try {
-            calendarService.saveEvent(eventDto);
-            return ResponseEntity.ok("Event created");
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error creating event: " + e.getMessage());
-        } catch (GeneralSecurityException e) {
-            throw new RuntimeException(e);
-        }
+    @PostMapping("/event")
+    public ResponseEntity<ResponseEventDto> saveEvent(@RequestBody EventDto eventDto) throws GeneralSecurityException, IOException {
+            Event event = calendarService.saveEvent(eventDto);
+            return ResponseEntity.ok(new ResponseEventDto(event.getSummary(), event.getId()));
     }
 
+    @GetMapping("/event")
+    public List<Event> getEvents(DateTime fromDate) throws GeneralSecurityException, IOException {
+        return calendarService.getAllEvents(fromDate);
+    }
 }

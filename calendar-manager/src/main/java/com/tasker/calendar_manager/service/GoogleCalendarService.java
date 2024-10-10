@@ -10,6 +10,7 @@ import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.Calendar;
 import com.google.api.services.calendar.model.Event;
 import com.google.api.services.calendar.model.EventDateTime;
+import com.google.api.services.calendar.model.Events;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,16 +20,19 @@ import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class GoogleCalendarService {
-    private final GoogleCredentialService calendarService;
+    private final GoogleCredentialService googleCredentialService;
 
-    public Event createEvent(String title, Instant startTime) throws IOException, GeneralSecurityException {
+    public Event createEvent(String title, Instant startTime, String description) throws IOException, GeneralSecurityException {
         Event event = new Event()
                 .setSummary(title);
-
+        if(description != null){
+            event.setDescription(description);
+        }
         EventDateTime startDateTime = new EventDateTime()
                 .setDateTime(new DateTime(startTime.toEpochMilli()))
                 .setTimeZone("UTC");
@@ -44,7 +48,17 @@ public class GoogleCalendarService {
 //        W Google Calendar API, każdy użytkownik może mieć wiele kalendarzy.
 //                "primary" to specjalny identyfikator, który zawsze odnosi się do głównego kalendarza użytkownika
         String calendarId = "primary";
-        event = calendarService.setupCredential().events().insert(calendarId, event).execute();
+        event = googleCredentialService.setupCredential().events().insert(calendarId, event).execute();
         return event;
+    }
+
+    public List<Event> getAllEvents(DateTime fromDate) throws IOException, GeneralSecurityException {
+        String calendarId = "primary";
+        Events events = googleCredentialService.setupCredential().events().list(calendarId)
+                .setTimeMin(fromDate)
+                .setOrderBy("startTime")
+                .setSingleEvents(true)
+                .execute();
+        return events.getItems();
     }
 }
