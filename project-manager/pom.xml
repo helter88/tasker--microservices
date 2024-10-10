@@ -130,6 +130,22 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+			<plugin>
+				<groupId>com.github.spotbugs</groupId>
+				<artifactId>spotbugs-maven-plugin</artifactId>
+				<version>4.8.6.4</version> <!-- Use the latest stable version -->
+				<executions>
+					<execution>
+						<goals>
+							<goal>check</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<!-- Optional: Use the exclude filter file if you want to ignore specific rules -->
+					<excludeFilterFile>${basedir}/spotbugs-exclude.xml</excludeFilterFile>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
