@@ -12,7 +12,7 @@ import java.util.UUID;
 @Setter
 public class Issue {
     @Id
-    public UUID uuid = UUID.randomUUID();
-    public String name;
-    public String description;
+    private UUID uuid = UUID.randomUUID();
+    private String name;
+    private String description;
 }
