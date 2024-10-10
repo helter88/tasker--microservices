@@ -19,5 +19,5 @@ public class Project {
     private UUID uuid = UUID.randomUUID();
     private String description;
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
-    public List<ProjectEvent> projectEventList;
+    private List<ProjectEvent> projectEventList;
 }
