@@ -23,6 +23,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 public class IssueController implements IssueControllerApi { //TODO: interface with REST-related annotations (being consistent with API-first approach?)
+
     private final IssueService issueService;
 
     public List<IssueDto> getIssues() {
