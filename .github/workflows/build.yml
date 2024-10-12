@@ -19,7 +19,7 @@ jobs:
         java-version: '21'
         distribution: 'adopt'
         
-    - name: Build and analyze issue manager
+    - name: Build and analyze issue project-manager
       run: |
         cd issue-manager
         mvn clean verify org.jacoco:jacoco-maven-plugin:report org.apache.maven.plugins:maven-site-plugin:site -DgenerateReports=false
