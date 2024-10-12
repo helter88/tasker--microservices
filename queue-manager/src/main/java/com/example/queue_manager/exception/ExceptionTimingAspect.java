@@ -15,8 +15,6 @@ public class ExceptionTimingAspect {
         long start = System.currentTimeMillis();
         Object result = joinPoint.proceed();
         long executionTime = System.currentTimeMillis() - start;
-
-        String timerMethodName = joinPoint.getSignature().getName();
         String actualClassName = joinPoint.getSignature().getDeclaringTypeName();
 
         log.info("Class name '{}' executed in {} ms", actualClassName, executionTime);

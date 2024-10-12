@@ -16,7 +16,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class Player {
     @Id
-    public UUID uuid = UUID.randomUUID();
+    private UUID uuid = UUID.randomUUID();
     private int id;
     private String playerName;
     private String position;
