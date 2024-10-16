@@ -21,9 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class QueueConsumer {
     private final QueueClient client;
-    private final PlayerRepository playerRepository;
     private final QueueRepository queueRepository;
-    private final PlayerMapper mapper;
     @Value("${queue.max-retries}")
     private int maxRetries;
 
@@ -41,15 +39,12 @@ public class QueueConsumer {
     }
 
     private void runJob() {
-        List<PlayerDto> response = client.processDataForJob();
-        response.forEach(playerDto -> playerRepository.save(mapper.toEntity(playerDto)));
     }
 
     private void updateExecutionCommand(Queue queue) {
         queueRepository.save(queue);
     }
     private List<Queue> getExecutionCommands() {
-        return queueRepository.findByStatusOrFailedWithRetriesLeft(Status.TODO, maxRetries);
     }
 
     private Queue executeJobLogicForCommands(Queue queue) {
@@ -77,12 +72,3 @@ public class QueueConsumer {
     }
 }
 
-// TODO 30.08.2024 CI/CD z Github axtions etap budowania projektu
-//TODO 06.09 zapytaj Kubę co w sytuacji gdy baza danych jest PostgreSQL i używa sekwencji w kontekście id encji
-//TODO 06.09 zapytaj Kubę różnica między NamedQuery a Query do zapytań ?
-
-// retry (max 3 razy) gdy failed
-// data-czas wykonania w queue
-// czas wykonywania job'a w queue
-// * retry - 1wszy tj. next job, 2gi po 2 min, 3ci po 15 min
-// * wizualizacja czasów na grafanie

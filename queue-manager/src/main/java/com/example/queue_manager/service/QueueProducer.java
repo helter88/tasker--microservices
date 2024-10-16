@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class QueueProducer {
 
-    private final QueueRepository repository;
-
     @Scheduled(fixedRate = 100000)
     public void saveTask() {
         repository.save(new Queue(Status.TODO));

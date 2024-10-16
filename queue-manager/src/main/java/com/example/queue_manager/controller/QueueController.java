@@ -17,10 +17,9 @@ public class QueueController {
 
     private final QueueRepository repository;
 
-    @PostMapping("/tasks")
+    @PostMapping("/event")
     @TimerAnnotation
-    public ResponseEntity<String> addNewTask() {
-        System.out.println("Controller runs");
+    public ResponseEntity<String> addNewEvent() {
         repository.save(new Queue(Status.TODO));
         return ResponseEntity.ok("xD");
     }

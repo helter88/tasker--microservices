@@ -11,7 +11,7 @@ import java.util.List;
 @FeignClient(name = "queue-manager", url = "http://rest.nbaapi.com/api" )
 public interface QueueClient {
 
-    @GetMapping("/PlayerDataAdvanced/quer")
+    @GetMapping("")
     @TimerAnnotation
-    List<PlayerDto> processDataForJob();
+    List<?> processDataForJob();
 }
