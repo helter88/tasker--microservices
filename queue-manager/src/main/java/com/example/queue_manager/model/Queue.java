@@ -1,14 +1,17 @@
 package com.example.queue_manager.model;
 
 import com.example.queue_manager.service.utile.Status;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 
 import java.time.Duration;
@@ -19,23 +22,30 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@ToString
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Queue {
     @Id
-    UUID uuid = UUID.randomUUID();
+    private UUID uuid = UUID.randomUUID();
 
-    @Enumerated(EnumType.STRING)
-    Status status;
+    private Instant executionDate;
 
-    Instant executionDate;
+    private Long executionTimeMillis;
 
-    Duration executionTime;
+    private Integer numberOfTries = 0;
 
-    Integer numberOfTries = 0;
+    private String messageLog;
 
-    String messageLog;
+    private Boolean isConsumed;
 
-    public Queue(Status status) {
-        this.status = status;
+    private String payload;
+
+    public Queue(Instant executionDate, Long executionTimeMillis, Integer numberOfTries, String messageLog, Boolean isConsumed, String payload) {
+        this.executionDate = executionDate;
+        this.executionTimeMillis = executionTimeMillis;
+        this.numberOfTries = numberOfTries;
+        this.messageLog = messageLog;
+        this.isConsumed = isConsumed;
+        this.payload = payload;
     }
 }

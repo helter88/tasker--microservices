@@ -5,7 +5,9 @@ google:
   credentials:
     path: /credentials.json
 server:
-  port: 8081
+  port: 8092
 auth:
   jwt:
     secret: Moj secret
+queue-manager:
+  url: http://localhost:8083/api/v1/queue

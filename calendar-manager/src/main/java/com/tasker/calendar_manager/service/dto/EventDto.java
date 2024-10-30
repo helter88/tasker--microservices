@@ -2,5 +2,5 @@ package com.tasker.calendar_manager.service.dto;
 
 import java.time.Instant;
 
-public record EventDto(Instant date, String task, String description) {
+public record EventDto(String id, Instant date, String task, String description) {
 }

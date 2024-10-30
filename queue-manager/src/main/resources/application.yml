@@ -9,14 +9,18 @@ spring:
   jpa:
     show_sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
 server:
   port: 8083
 
 queue:
   max-retries: 3
-  repetition-time: 10000
+  repetition-time: 60000
 
 auth:
   jwt:
     secret: Moj secret
+calendar-manager:
+  url: http://localhost:8092/api/v1/calendar
+calendar-entrance-manager:
+  url: http://localhost:8088/api/v1/calendar-entrance

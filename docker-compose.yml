@@ -1,6 +1,6 @@
 version: "3.8"
 services:
-  db:
+  mysql:
     image: mysql
     container_name: tasker_mysql_db
     restart: always
@@ -15,5 +15,62 @@ services:
       MYSQL_PASSWORD: admin
     volumes:
       - my-db:/var/lib/mysql
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_SERVER: mongodb
+    depends_on:
+      - mongodb
+    healthcheck:
+      test: wget --quiet --tries=3 --spider http://localhost:8081 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  calendar-manager:
+    image: calendar-manager
+    container_name: calendar-manager
+    ports:
+      - "8092:8092"
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+  calendar-manager-entrance:
+    image: calendar-manager-entrance
+    container_name: calendar-manager-entrance
+    ports:
+      - "8088:8088"
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+  queue-manager:
+    image: queue-manager
+    container_name: queue-manager
+    ports:
+      - "8083:8083"
+    deploy:
+      resources:
+        limits:
+          memory: 500mb
+
 volumes:
   my-db:
+  mongodb_data:

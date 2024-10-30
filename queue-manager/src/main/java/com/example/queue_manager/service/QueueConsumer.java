@@ -1,14 +1,15 @@
 package com.example.queue_manager.service;
 
-import com.example.queue_manager.client.QueueClient;
-import com.example.queue_manager.exception.InvalidJobException;
-import com.example.queue_manager.model.Queue;
-import com.example.queue_manager.repository.PlayerRepository;
+import com.example.queue_manager.client.CalendarClient;
+import com.example.queue_manager.client.CalendarEntranceClient;
 import com.example.queue_manager.repository.QueueRepository;
-import com.example.queue_manager.service.dto.PlayerDto;
-import com.example.queue_manager.service.mapper.PlayerMapper;
+import com.example.queue_manager.service.dto.CalendarEventDto;
 import com.example.queue_manager.service.utile.Status;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -19,56 +20,63 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Log4j2
 public class QueueConsumer {
-    private final QueueClient client;
+    private final CalendarClient calendarClient;
+    private final CalendarEntranceClient calendarEntranceClient;
     private final QueueRepository queueRepository;
-    @Value("${queue.max-retries}")
-    private int maxRetries;
-
+    private final ObjectMapper objectMapper;
 
     @Scheduled(fixedDelayString = "${queue.repetition-time}")
-    public void runJobs() {
-//         get all entries from queue with status TODO
-        List<Queue> commands = getExecutionCommands();
-//         run BusinessLogicService for each entries
-        commands.forEach(queue -> updateExecutionCommand(executeJobLogicForCommands(queue)));
+    public void processCalendarUpdate() {
+        var ques = queueRepository.findLatestUpdatedQueueEntriesForEachIdentifier();
+        ques.forEach(queue -> {
+            if(!queue.getIsConsumed()){
+                try {
+                    CalendarEventDto eventDto = objectMapper.readValue(queue.getPayload(), CalendarEventDto.class);
+                    calendarClient.updateCalendarEvent(eventDto);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException("Deserialization problem");
+                }
+                queue.setIsConsumed(true);
+                queueRepository.save(queue);
+            } else {
+                log.info("Already consumed: " + queue);
+            }
+        });
+    }
+    @Scheduled(fixedDelayString = "${queue.repetition-time}")
+    public void processCalendarCreate() {
+        var ques = queueRepository.findLatestCreatedQueueEntriesForEachIdentifier();
+        ques.forEach(queue -> {
+            if(!queue.getIsConsumed()){
+                try {
+                    CalendarEventDto eventDto = objectMapper.readValue(queue.getPayload(), CalendarEventDto.class);
+                    calendarClient.createCalendarEvent(eventDto);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException("Deserialization problem");
+                }
+                queue.setIsConsumed(true);
+                queueRepository.save(queue);
+            } else {
+                log.info("Already consumed: " + queue);
+            }
+        });
     }
 
-    public void userRequest() {
-        runJob();
-    }
-
-    private void runJob() {
-    }
-
-    private void updateExecutionCommand(Queue queue) {
-        queueRepository.save(queue);
-    }
-    private List<Queue> getExecutionCommands() {
-    }
-
-    private Queue executeJobLogicForCommands(Queue queue) {
-
-        try {
-            Instant jobStart = Instant.now();
-            queue.setStatus(Status.INPROGRESS);
-            queueRepository.save(queue);
-            runJob();
-            Instant jobEnd = Instant.now();
-            queue.setStatus(Status.DONE);
-            queue.setExecutionTime(Duration.between(jobStart, jobEnd));
-            queue.setExecutionDate(jobEnd);
-        } catch (Exception exception) {
-            //TODO write Exception Handler
-            queue.setStatus(Status.FAILED);
-            queue.setExecutionDate(Instant.now());
-            queue.setNumberOfTries(queue.getNumberOfTries() + 1);
-            var messageException = "Can't run Job";
-            queue.setMessageLog(messageException);
-            queueRepository.save(queue);
-            throw new InvalidJobException(messageException);
-        }
-        return queue;
+    @Scheduled(fixedDelayString = "${queue.repetition-time}")
+    public void processRefresh() {
+        var ques = queueRepository.findAllByMessageLogContainingAndIsConsumedEquals("refreshCalendarEvent", false);
+        ques.forEach(queue -> {
+                try {
+                    CalendarEventDto eventDto = objectMapper.readValue(queue.getPayload(), CalendarEventDto.class);
+                    calendarEntranceClient.refreshCalendarEvent(eventDto);
+                } catch (JsonProcessingException e) {
+                    throw new RuntimeException("Deserialization problem");
+                }
+                queue.setIsConsumed(true);
+                queueRepository.save(queue);
+        });
     }
 }
 
