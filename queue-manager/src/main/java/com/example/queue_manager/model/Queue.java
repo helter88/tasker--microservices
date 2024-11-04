@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.Type;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -26,6 +27,7 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Queue {
     @Id
+    @Column(columnDefinition = "VARCHAR(36)")
     private UUID uuid = UUID.randomUUID();
 
     private Instant executionDate;

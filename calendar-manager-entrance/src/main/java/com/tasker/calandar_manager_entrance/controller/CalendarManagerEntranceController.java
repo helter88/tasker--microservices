@@ -2,6 +2,7 @@ package com.tasker.calandar_manager_entrance.controller;
 
 import com.tasker.calandar_manager_entrance.dto.CalendarEventDto;
 import com.tasker.calandar_manager_entrance.service.CalendarManagerEntranceService;
+import io.micrometer.core.annotation.Timed;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class CalendarManagerEntranceController {
     private final CalendarManagerEntranceService entranceService;
     @PostMapping
+    @Timed(value = "greeting.time", description = "Time taken to return greeting")
     public ResponseEntity<?> saveCalendarEvent(@RequestBody CalendarEventDto eventDto){
         entranceService.saveCalendarEvent(eventDto);
         return ResponseEntity.ok("Success saved");
